@@ -83,7 +83,8 @@ def analyzerange():
  global shared_array, ownip, UseGUI, tree
  hostaddr = ownip.split('.')[:-1]
 
- for i in tree.get_children(): # clear tree
+ if UseGUI:
+  for i in tree.get_children(): # clear tree
     tree.delete(i)
 
  for i in range(1,255):
