@@ -172,7 +172,7 @@ def check80(purl):
    retdata = content.read()
    if str(retdata).find("Sonoff-Tasmota")>-1:
     tipus = "Tasmota"
-   elif str(retdata).find("Powered by www.letscontrolit.com")>-1: 
+   elif str(retdata).find("www.letscontrolit.com")>-1: 
     tipus = "ESPEasy"
    elif str(retdata).find("/cgi-bin/luci")>-1:
     tipus = "OpenWRT"
