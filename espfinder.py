@@ -6,21 +6,21 @@
 #
 
 from subprocess import getoutput
-from multiprocessing import Process, Array
+from multiprocessing import Process, Array, Value
 from sys import exit, argv
 import ctypes
 import time
 import signal
+import os
 from ef_net import *
 import tkinter# sudo apt-get install python3-tk 
 from tkinter import ttk
+from tkinter import messagebox
 
 PROG_NAME= "ESP Finder"
-PROG_VER="0.1b"
+PROG_VER="0.2b"
 
 # ---------- MULTIPROCESSING PART
-
-shared_array = Array(ctypes.c_ubyte,255)  # multiprocessing ping results
 
 class PING_SWEEP(object):
 
@@ -30,53 +30,112 @@ class PING_SWEEP(object):
     self.ping_sweeper.__init__(self)
     self.ping_sweeper()
 
-  def pinger(self, host_num, resarray):
+  def pinger(self, host_num, resarray, resnum):
     """thread pinger function"""
     hostadrr = self.ownip.split('.')[:-1]
     hostadrr = '.'.join(hostadrr) + '.' + repr(host_num)
-    try:
-     line = getoutput("ping -n -c 1 -W 0.2 %s 2> /dev/null" % hostadrr)
-    except:
-     line = ""
-     exit(0)
-#    self.callback(1,0)
-    if line.find(hostadrr) and line.find("bytes from") > -1:  # Host Active
-#        self.callback(0,hostadrr)
+    if os.name == "posix":      
+     try:
+      line = getoutput("ping -n -c 1 -W 0.2 %s 2> /dev/null" % hostadrr)
+     except:
+      resarray[host_num] = 0      
+      line = ""
+     if line.find(hostadrr) and line.find("bytes from") > -1:  # Host Active
         resarray[host_num] = host_num
-    else:
-        exit(0)
+     else:
+        resarray[host_num] = 0
+    elif os.name == "nt":
+     try:
+      for line in os.popen("ping -n 1 -w 200 %s" % hostadrr):
+       line2 = str(line.rstrip().encode('UTF-8'))
+       if hostadrr in line2 and "TTL" in line2:
+        resarray[host_num] = host_num
+#        print(host_num) # debug only
+        break
+     except:
+      resarray[host_num] = 0
+    resnum.value +=1
+    self.hcount = resnum.value
+    exit(0)
 
   def ping_sweeper(self):
-    global shared_array
-    self.maxnum = 255
+    global shared_array, scounter
+    #shared_array = Array(ctypes.c_ubyte,255)  # multiprocessing ping results
+    #scounter = Value('i',0)
+#    self.maxnum = 255 # 255
+    self.hcount = scounter.value
     procarr = []
-    for host_num in range(1, self.maxnum):
-      ping = Process(target=self.pinger, args=(host_num,shared_array))
+
+    if os.name == "posix":
+     for host_num in range(1, 255):
+      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
       ping.start()
       procarr.append(ping.pid)
-    time.sleep(3)
-    for process in procarr: # Cleanup
-     try:
-      os.kill(process,signal.SIGTERM)
-     except:
-      pass 
+     time.sleep(3)
+     for process in procarr: # Cleanup
+      try:
+       os.kill(process,signal.SIGTERM)
+      except:
+       pass 
+    elif os.name == "nt":
 
-#  def __del__(self):
-#   self.callback(2,0) 
+     for host_num in range(1, 50):
+      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+      ping.start()
+      procarr.append(ping)
+      for process in procarr:
+        process.join(1)
+
+     procarr = []    
+     for host_num in range(50, 100):
+      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+      ping.start()
+      procarr.append(ping)
+      for process in procarr:
+        process.join(1)
+
+     procarr = []    
+     for host_num in range(100, 150):
+      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+      ping.start()
+      procarr.append(ping)
+      for process in procarr:
+        process.join(1)
+
+     procarr = []    
+     for host_num in range(150, 200):
+      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+      ping.start()
+      procarr.append(ping)
+      for process in procarr:
+        process.join(1)
+
+     procarr = []    
+     for host_num in range(200, 255):
+      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+      ping.start()
+      procarr.append(ping)
+      for process in procarr:
+        process.join(1)
+
+    self.callback(1,255)    
+    
+  def __del__(self):
+   self.callback(2,self.hcount)
 
 def cb_stationsearch(func, par1):
- global ownip, scanlist, UseGUI, progress1
- if (func == 0) or (func == 1):
-  if UseGUI:
-   progress1.step()
- elif (func == 2):
-  if UseGUI:
-   progress1["value"] = 254
-
+ global UseGUI
+ 
+ if UseGUI==False:
+  print('.', end='')
+#  print("Counter",par1)
+ if par1>=255:
+  if UseGUI==False:
+   print("Analyzing online targets...")
+  analyzerange()
 
 def pingscan():
- global shared_array, ownip
- shared_array = Array(ctypes.c_ubyte,255)  # multiprocessing ping results
+ global ownip
  PING_SWEEP(cb_stationsearch,ownip)
 
 def analyzerange():
@@ -88,8 +147,9 @@ def analyzerange():
     tree.delete(i)
 
  for i in range(1,255):
-  if shared_array[i] > 0:
-   hostadr = '.'.join(hostaddr) + '.' + repr(shared_array[i])
+  if shared_array[i] > 0 and shared_array[i] < 255:
+   #hostadr = '.'.join(hostaddr) + '.' + repr(shared_array[i])
+   hostadr = '.'.join(hostaddr) + '.' + str(i)   
    if (hostadr == ownip):
     tline = "THIS DEVICE"
     if UseGUI==False:
@@ -134,30 +194,38 @@ def analyzeip(par1):
     tree.insert(tpid,"end",values=(tinfos[2],tinfos[3],tinfos[4],tinfos[5],tinfos[6],tinfos[7]))
 
 def searchdevices():
-  global UseGUI, progress1    
+  global UseGUI
   if UseGUI==False:
    print("Starting pingscan...")
   pingscan()
-  if UseGUI==False:
-   print("Analyzing online targets...")
-  analyzerange()
 
 UseGUI = True
   
 if __name__ == '__main__':
 
+  shared_array = Array(ctypes.c_ubyte,255)  # multiprocessing ping results
+  scounter = Value('i',0)
+
   if len(argv)>1:
    if argv[1] == '-t':
-    UseGUI = False   
-  
+    UseGUI = False
+
   if UseGUI:
    window = tkinter.Tk()
    window.title(PROG_NAME)
    window.geometry('1000x700')
-   
+
   ownip = get_ip()
+  if (ownip == False):
+   if UseGUI:
+    window.withdraw()
+    messagebox.showinfo("Error","I can not find own IP address, please send ifconfig output to forum!")
+   else:
+    print("I can not find own IP address, please send ifconfig output to forum!")
+   exit(0)
+
   if UseGUI:
- 
+
    tree = ttk.Treeview(window)
 
    tree["columns"]=("A","B","C","D","E","F","G")

@@ -124,13 +124,22 @@ def parseTable(html):
 
 
 def get_ip():
+   if os.name == "posix":
     f = os.popen('ifconfig')
     for iface in [' '.join(i) for i in iter(lambda: list(itertools.takewhile(lambda l: not l.isspace(),f)), [])]:
-        if re.findall('^(eth|wlan)[0-9]',iface) and re.findall('RUNNING',iface):
+        if re.findall('^(eth|wlan|enp|ens|enx|wlp|wls|wlx)[0-9]',iface) and re.findall('RUNNING',iface):
             ip = re.findall('(?<=inet\saddr:)[0-9\.]+',iface)
             if ip:
                 return ip[0]
-    return False
+   elif os.name == "nt":
+    f = getoutput("ipconfig")
+    ipconfig = f.split('\n')
+    for line in ipconfig:
+        if 'IPv4' in line:
+            ip = re.findall('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',line)
+            if ip:
+                return ip[0]
+   return False
 
 def check_port(host, port):
     opened = False
@@ -143,14 +152,27 @@ def check_port(host, port):
 
 def getMACfromIP(ipaddr):
   resarr = []
-  line = getoutput("arp -a %s 2> /dev/null" % ipaddr)
-  try:
-   mac = re.search(r"(([a-f\d]{1,2}\:){5}[a-f\d]{1,2})", line).groups()[0]
-   resarr.append(mac.strip())
-  except:
-   resarr.append("")
-  strname = line.split(' ')[0]
-  resarr.append(strname.strip())
+  if os.name == "posix": 
+   line = getoutput("arp -a %s 2> /dev/null" % ipaddr)
+   try:
+    mac = re.search(r"(([a-f\d]{1,2}\:){5}[a-f\d]{1,2})", line).groups()[0]
+    resarr.append(mac.strip())
+   except:
+    resarr.append("")
+   strname = line.split(' ')[0]
+   resarr.append(strname.strip())
+  elif os.name == "nt":
+   aout = getoutput("arp -a %s" % ipaddr)
+   mstr = ""
+   arpout = aout.split('\n')
+   for line in arpout:
+      if ipaddr in line:
+       try:
+        mstr = re.search(r"(([a-f\d]{1,2}\-){5}[a-f\d]{1,2})", line).groups()[0]
+       except:
+        mstr = ""
+   resarr.append(mstr.strip()) 
+   resarr.append("") 
   return resarr
 
 def check80(purl):
@@ -169,7 +191,10 @@ def check80(purl):
    rescode = -1
   if (rescode == 200):
    tipus2 = content.info()['Server']
-   retdata = content.read()
+   try:
+    retdata = content.read()
+   except:
+    retdata = ""
    if str(retdata).find("Sonoff-Tasmota")>-1:
     tipus = "Tasmota"
    elif str(retdata).find("www.letscontrolit.com")>-1: 
@@ -198,7 +223,10 @@ def get_tasmota(purl):
   except:
    rescode = -1
   if (rescode == 200):
-   retdata = content.read()
+   try:
+    retdata = content.read()
+   except:
+    retdata = ""
    msg2 = retdata.decode('utf-8')
    if ('{' in msg2):
     list = []
@@ -221,7 +249,10 @@ def get_tasmota(purl):
   except:
    rescode = -1
   if (rescode == 200):
-   retdata = content.read()
+   try:   
+    retdata = content.read()
+   except:
+    retdata = ""    
    msg2 = retdata.decode('utf-8')
    if ('{' in msg2):
     list = []
@@ -244,7 +275,10 @@ def get_tasmota(purl):
   except:
    rescode = -1
   if (rescode == 200):
-   retdata = content.read()
+   try:
+    retdata = content.read()
+   except:
+    retdata = ""    
    msg2 = retdata.decode('utf-8')
    if ('{' in msg2):
     list = []
@@ -268,7 +302,10 @@ def get_tasmota(purl):
   except:
    rescode = -1
   if (rescode == 200):
-   retdata = content.read()
+   try:
+    retdata = content.read()
+   except:
+    retdata = ""    
    msg2 = retdata.decode('utf-8')
    if ('{' in msg2):
     list = []
@@ -302,7 +339,10 @@ def get_espeasy(purl):
   except:
    rescode = -1
   if (rescode == 200):
-   retdata = content.read()
+   try:
+    retdata = content.read()
+   except:
+    retdata = ""
    msg2 = retdata.decode('utf-8')
    if ('{' in msg2):
     list = []
@@ -340,7 +380,10 @@ def get_espeasy(purl):
   except:
    rescode = -1
   if (rescode == 200):
-   readinfos = str(content.read())
+   try:
+    readinfos = str(content.read())
+   except:
+    readinfos = ""
    readinfos2 = readinfos.replace("<TR><TD>","</TD></TR><TR><TD>") # correct missing html markers
    readinfos2 = readinfos2.replace("</TD></TR></TD></TR><TR><TD>","</TD></TR><TR><TD>")
    readinfos2 = readinfos2.replace("<TD>","</TD><TD>")
@@ -361,7 +404,7 @@ def get_espeasy(purl):
          wifistren = 100
         resarr[7] = str(wifistren) + "%"
     
-    if (tarr.find("Build")>0 and tarr.find("core")>0) or tarr.find("Build:")>0:
+    if (tarr.find("Build")>0 and ((tarr.find("core")>0) or (tarr.find("Core")>0))) or tarr.find("Build:")>0:
        resarr[2] = "ESPEasy " + item[1]
         
     if tarr.find("Flash Chip Real Size")>0 or tarr.find("Flash Size:")>0:
