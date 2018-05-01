@@ -214,7 +214,7 @@ def get_tasmota(purl):
  resarr = ['','','','','','','','','']
  rescode = 0
  try:
-  content = urllib.request.urlopen("http://"+purl+"/cm?cmnd=status", None, 2)
+  content = urllib.request.urlopen("http://"+purl+"/cm?cmnd=status%209", None, 2)
  except:
   rescode = -1
  if rescode == 0: 
