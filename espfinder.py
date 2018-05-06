@@ -127,7 +127,7 @@ def cb_stationsearch(func, par1):
  global UseGUI
  
  if UseGUI==False:
-  print('.')#, end='')
+  print('.', end='')
 #  print("Counter",par1)
  if par1>=255:
   if UseGUI==False:
@@ -226,7 +226,10 @@ if __name__ == '__main__':
    if (len(argv)>3 and argv[2]=='-i'):
      ownip = argv[3]
    else:
-     print("Use 'python3 ", argv[0], " -t -i xxx.xxx.xxx.xxx' to set IP manual")
+     print("To start in Terminal mode use '-t' for window mode '-g'.")
+     print("As syntax to start with manual defined IP use:")
+     print(" => 'python3 ", argv[0], " -t -i xxx.xxx.xxx.xxx'")
+     print("Please try again. Script support English and German.")
      exit(0)  
 
   if UseGUI:
