@@ -5,7 +5,7 @@
 # the host numbers 1-254 will be pinged
 #
 
-from subprocess import getoutput
+import subprocess
 from multiprocessing import Process, Array, Value
 from sys import exit, argv
 import ctypes
@@ -18,7 +18,7 @@ from tkinter import ttk
 from tkinter import messagebox
 
 PROG_NAME= "ESP Finder"
-PROG_VER="0.2b"
+PROG_VER="0.2c"
 
 # ---------- MULTIPROCESSING PART
 
@@ -34,9 +34,10 @@ class PING_SWEEP(object):
     """thread pinger function"""
     hostadrr = self.ownip.split('.')[:-1]
     hostadrr = '.'.join(hostadrr) + '.' + repr(host_num)
+    #print('.', end='')
     if os.name == "posix":      
      try:
-      line = getoutput("ping -n -c 1 -W 0.2 %s 2> /dev/null" % hostadrr)
+      line = subprocess.getoutput("ping -n -c 1 -W 0.2 %s 2> /dev/null" % hostadrr)
      except:
       resarray[host_num] = 0      
       line = ""
@@ -45,15 +46,27 @@ class PING_SWEEP(object):
      else:
         resarray[host_num] = 0
     elif os.name == "nt":
-     try:
-      for line in os.popen("ping -n 1 -w 200 %s" % hostadrr):
-       line2 = str(line.rstrip().encode('UTF-8'))
-       if hostadrr in line2 and "TTL" in line2:
+      #print(hostadrr, end='') # debug only
+      proc = subprocess.Popen(['ping', '-n', '1', '-w', '200', hostadrr],stdout=subprocess.DEVNULL)
+      proc.wait()
+      if proc.returncode == 0: # success
+        #print(' ----> is UP') # debug only
         resarray[host_num] = host_num
-#        print(host_num) # debug only
-        break
-     except:
-      resarray[host_num] = 0
+      else:
+        #print(' no response') # debug only
+        resarray[host_num] = 0
+     # try:
+     #  print("nt:",host_num, "ping -n 1 -w 200 %s" % hostadrr) # debug only
+     #  for line in os.popen("ping -n 1 -w 200 %s" % hostadrr):
+     #   print(line) # debug only
+     #   line2 = str(line.rstrip().encode('UTF-8'))
+     #   print(line2) # debug only
+     #   if hostadrr in line2 and "TTL" in line2:
+     #    resarray[host_num] = host_num
+     #    print(host_num) # debug only
+     #    break
+     # except:
+     #  resarray[host_num] = 0
     resnum.value +=1
     self.hcount = resnum.value
     exit(0)
@@ -65,9 +78,10 @@ class PING_SWEEP(object):
 #    self.maxnum = 255 # 255
     self.hcount = scounter.value
     procarr = []
-
+    print('000 IPs scanned', end='')
     if os.name == "posix":
      for host_num in range(1, 255):
+      print('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b'+('00'+str(host_num))[-3:]+' IPs scanned', end='')
       ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
       ping.start()
       procarr.append(ping.pid)
@@ -77,46 +91,46 @@ class PING_SWEEP(object):
        os.kill(process,signal.SIGTERM)
       except:
        pass 
-    elif os.name == "nt":
-
-     for host_num in range(1, 50):
+    elif os.name == "nt": 
+     for host_num in range(1, 255):
+      print('.', end='')
       ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
       ping.start()
       procarr.append(ping)
-      for process in procarr:
+      for process in procarr: # Cleanup
         process.join(1)
-
-     procarr = []    
-     for host_num in range(50, 100):
-      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-      ping.start()
-      procarr.append(ping)
-      for process in procarr:
-        process.join(1)
-
-     procarr = []    
-     for host_num in range(100, 150):
-      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-      ping.start()
-      procarr.append(ping)
-      for process in procarr:
-        process.join(1)
-
-     procarr = []    
-     for host_num in range(150, 200):
-      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-      ping.start()
-      procarr.append(ping)
-      for process in procarr:
-        process.join(1)
-
-     procarr = []    
-     for host_num in range(200, 255):
-      ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-      ping.start()
-      procarr.append(ping)
-      for process in procarr:
-        process.join(1)
+    print(' ... done')
+     # procarr = []    
+     # for host_num in range(50, 100):
+     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+     #  ping.start()
+     #  procarr.append(ping)
+     #  for process in procarr:
+     #    process.join(1)
+# 
+     # procarr = []    
+     # for host_num in range(100, 150):
+     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+     #  ping.start()
+     #  procarr.append(ping)
+     #  for process in procarr:
+     #    process.join(1)
+# 
+     # procarr = []    
+     # for host_num in range(150, 200):
+     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+     #  ping.start()
+     #  procarr.append(ping)
+     #  for process in procarr:
+     #    process.join(1)
+# 
+     # procarr = []    
+     # for host_num in range(200, 255):
+     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
+     #  ping.start()
+     #  procarr.append(ping)
+     #  for process in procarr:
+     #    process.join(1)
 
     self.callback(1,255)    
     
@@ -231,9 +245,9 @@ if __name__ == '__main__':
      print(" => 'python3 ", argv[0], " -t -i xxx.xxx.xxx.xxx'")
      print("Please try again. Script support English and German.")
      exit(0)  
-
+  print("Your IP is:", ownip)
   if UseGUI:
-
+   messagebox.showinfo("Info","Please press 'Refresh' button and wait for results. It will take a while.")
    tree = ttk.Treeview(window)
 
    tree["columns"]=("A","B","C","D","E","F","G")

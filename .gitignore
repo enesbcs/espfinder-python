@@ -1,0 +1,7 @@
+## OS specific ########
+.DS_Store
+.fuse_hidden*
+
+
+## Project files ######
+__pycache__
