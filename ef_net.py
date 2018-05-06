@@ -124,7 +124,7 @@ def parseTable(html):
 
 
 def get_ip():
-   print("OS =", os.name, "found.")
+   #print("OS =", os.name, "found.")
    if os.name == "posix":
     f = os.popen('ifconfig')
     for iface in [' '.join(i) for i in iter(lambda: list(itertools.takewhile(lambda l: not l.isspace(),f)), [])]:
