@@ -226,7 +226,7 @@ if __name__ == '__main__':
    if (len(argv)>3 and argv[2]=='-i'):
      ownip = argv[3]
    else:
-     print("Use ", argv[0], " -t -i xxx.xxx.xxx.xxx' to set IP manual")
+     print("Use 'python3 ", argv[0], " -t -i xxx.xxx.xxx.xxx' to set IP manual")
      exit(0)  
 
   if UseGUI:
