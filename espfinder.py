@@ -127,7 +127,7 @@ def cb_stationsearch(func, par1):
  global UseGUI
  
  if UseGUI==False:
-  print('.', end='')
+  print('.')#, end='')
 #  print("Counter",par1)
  if par1>=255:
   if UseGUI==False:
@@ -222,7 +222,12 @@ if __name__ == '__main__':
     messagebox.showinfo("Error","I can not find own IP address, please send ifconfig output to forum!")
    else:
     print("I can not find own IP address, please send ifconfig output to forum!")
-   exit(0)
+   # exit(0)
+   if (len(argv)>3 and argv[2]=='-i'):
+     ownip = argv[3]
+   else:
+     print("Use ", argv[0], " -t -i xxx.xxx.xxx.xxx' to set IP manual")
+     exit(0)  
 
   if UseGUI:
 
