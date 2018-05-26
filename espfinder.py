@@ -18,7 +18,7 @@ from tkinter import ttk
 from tkinter import messagebox
 
 PROG_NAME= "ESP Finder"
-PROG_VER="0.2c"
+PROG_VER="0.3"
 
 # ---------- MULTIPROCESSING PART
 
@@ -55,18 +55,6 @@ class PING_SWEEP(object):
       else:
         #print(' no response') # debug only
         resarray[host_num] = 0
-     # try:
-     #  print("nt:",host_num, "ping -n 1 -w 200 %s" % hostadrr) # debug only
-     #  for line in os.popen("ping -n 1 -w 200 %s" % hostadrr):
-     #   print(line) # debug only
-     #   line2 = str(line.rstrip().encode('UTF-8'))
-     #   print(line2) # debug only
-     #   if hostadrr in line2 and "TTL" in line2:
-     #    resarray[host_num] = host_num
-     #    print(host_num) # debug only
-     #    break
-     # except:
-     #  resarray[host_num] = 0
     resnum.value +=1
     self.hcount = resnum.value
     exit(0)
@@ -100,37 +88,6 @@ class PING_SWEEP(object):
       for process in procarr: # Cleanup
         process.join(1)
     print(' ... done')
-     # procarr = []    
-     # for host_num in range(50, 100):
-     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-     #  ping.start()
-     #  procarr.append(ping)
-     #  for process in procarr:
-     #    process.join(1)
-# 
-     # procarr = []    
-     # for host_num in range(100, 150):
-     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-     #  ping.start()
-     #  procarr.append(ping)
-     #  for process in procarr:
-     #    process.join(1)
-# 
-     # procarr = []    
-     # for host_num in range(150, 200):
-     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-     #  ping.start()
-     #  procarr.append(ping)
-     #  for process in procarr:
-     #    process.join(1)
-# 
-     # procarr = []    
-     # for host_num in range(200, 255):
-     #  ping = Process(target=self.pinger, args=(host_num,shared_array,scounter))
-     #  ping.start()
-     #  procarr.append(ping)
-     #  for process in procarr:
-     #    process.join(1)
 
     self.callback(1,255)    
     
@@ -247,7 +204,7 @@ if __name__ == '__main__':
      exit(0)  
   print("Your IP is:", ownip)
   if UseGUI:
-   messagebox.showinfo("Info","Please press 'Refresh' button and wait for results. It will take a while.")
+#   messagebox.showinfo("Info","Please press 'Refresh' button and wait for results. It will take a while.")
    tree = ttk.Treeview(window)
 
    tree["columns"]=("A","B","C","D","E","F","G")
@@ -267,6 +224,7 @@ if __name__ == '__main__':
    tree.heading("G", text="Vcc")
 
    tree.pack(expand=True, fill=tkinter.BOTH, side=tkinter.TOP)
+   tree.insert("","end",text="Please press 'Refresh' button",values=("and wait for results.","It will take a while."))
 
    refreshbutton = ttk.Button(window, text='Refresh', command=searchdevices)
    refreshbutton.pack()

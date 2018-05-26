@@ -135,6 +135,10 @@ def get_ip():
                 ip = re.findall('(?<=inet\saddr:)[0-9\.]+',iface)
             if ip:
                 return ip[0]
+            else:
+                ip = re.findall('(?<=inet\s)[0-9\.]+',iface) # support Arch linux
+                if ip:
+                 return ip[0]
    elif os.name == "nt":
     f = getoutput("ipconfig")
     ipconfig = f.split('\n')
