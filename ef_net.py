@@ -127,8 +127,12 @@ def get_ip():
    if os.name == "posix":
     f = os.popen('ifconfig')
     for iface in [' '.join(i) for i in iter(lambda: list(itertools.takewhile(lambda l: not l.isspace(),f)), [])]:
+        #print('  -> ',iface)
         if re.findall('^(eth|wlan|enp|ens|enx|wlp|wls|wlx)[0-9]',iface) and re.findall('RUNNING',iface):
-            ip = re.findall('(?<=inet\saddr:)[0-9\.]+',iface)
+            if os.getenv('LANG')[0:2]=='de':
+                ip = re.findall('(?<=inet\sAdresse:)[0-9\.]+',iface)
+            else: # default 'en'
+                ip = re.findall('(?<=inet\saddr:)[0-9\.]+',iface)
             if ip:
                 return ip[0]
    elif os.name == "nt":
