@@ -5,8 +5,14 @@ Requirements:
 - Linux
 - Python3
 
-Install prerequisite libraries:
+Install prerequisite libraries (Debian/Ubuntu):
   sudo apt-get install python3-tk
+
+(*)Debian Stretch specific prerequisite: (ifconfig required)
+  suto apt-get install net-tools
+
+Install prerequisite libraries (Arch):
+  sudo pacman -S tk  
 
 Run GUI:
   python3 espfinder.py
@@ -14,8 +20,14 @@ Run GUI:
 Run plain console:
   python3 espfinder.py -t
 
-
 Update:
 
-- implement german linux, there was an issue if the language isn't english, maybe more in future
-- use progress information and an information for GUI that maybe some time happens till result is visible
+0.3
+- (bollitec) german language linux (ifconfig) support + some extended progress informations
+- (enesbcs) Arch linux ifconfig output support
+
+0.2
+- (enesbcs) warning when ifconfig output can not be parsed + introduced some windows ipconfig support, but multiprocessing on windows seems slow as hell
+
+0.1
+First version
