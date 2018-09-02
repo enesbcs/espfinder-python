@@ -327,7 +327,12 @@ def get_tasmota(purl):
       resarr[4] = str(list['StatusSTS']['Uptime'])
       if len(resarr[4]) < 8:
         resarr[4] += "h"
-      resarr[8] = str(list['StatusSTS']['Vcc'])+"V"
+      if 'Vcc' in list['StatusSTS']:
+       resarr[8] = str(list['StatusSTS']['Vcc'])+"V"
+      elif 'VCC' in list['StatusSTS']:
+       resarr[8] = str(list['StatusSTS']['VCC'])+"V"
+      else:
+       resarr[8] = ""
       resarr[7] = str(list['StatusSTS']['Wifi']['RSSI'])+"%"
  return resarr
 
