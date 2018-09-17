@@ -144,6 +144,9 @@ def analyzeip(par1):
     attribs[3] = check80(par1)
   if (str(attribs[2]) != str("Espressif")) and (str(attribs[3]) == str("ESPurna")):
     attribs[3] = "" # its only a wild guess, delete if surely not!
+  if (str(attribs[2]) == str("Espressif")) and ( (attribs[3] == "Unknown") or (attribs[3] == "") ):
+   if check_tuya(par1):
+    attribs[3] = "Tuya"
   tline = attribs[0] + ", "+ attribs[1] + ", "+ attribs[2] +" "+ attribs[3]
   if UseGUI==False:
    print(par1.ljust(14) + tline)
