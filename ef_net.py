@@ -367,7 +367,10 @@ def get_espeasy(purl):
     if (list):
      if list['System']:
       try:   
-       resarr[2] = "ESPEasy "+str(list['System']['Build'])+" "+str(list['System']['Git Build'])
+       if 'System libraries' in list['System']:
+        resarr[2] = "ESPEasy "+str(list['System']['Build'])+" "+str(list['System']['System libraries'])
+       else:
+        resarr[2] = "ESPEasy "+str(list['System']['Build'])+" "+str(list['System']['Git Build'])
        resarr[3] = str(list['System']['Unit'])
        upmin = int(list['System']['Uptime'])
        resarr[4] = str(round(upmin/60,2))+"h"
@@ -444,7 +447,13 @@ def check_espurna(purl): # 23 & 80 open
     wildguess += 1
  if check_port(purl, 23):
     wildguess += 1
- return (wildguess==2)   
+ return (wildguess==2)
+
+def check_tuya(purl):
+ wildguess = 0
+ if check_port(purl,6668):
+  wildguess = 1
+ return (wildguess==1)
 
 def checkMACManuf(macaddr):
  retstr = ""   
