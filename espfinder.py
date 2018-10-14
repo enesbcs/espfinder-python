@@ -166,6 +166,13 @@ def analyzeip(par1):
     print(" -"+tline)     
    else:
     tree.insert(tpid,"end",values=(tinfos[2],tinfos[3],tinfos[4],tinfos[5],tinfos[6],tinfos[7]))
+  elif attribs[3] == "Shelly":
+   tinfos = get_shelly(par1)
+   tline = tinfos[2] + ", " + tinfos[3] + ", "+ tinfos[4] +", "+ tinfos[5] +", "+ tinfos[6]+", "+ tinfos[7]
+   if UseGUI==False:       
+    print(" -"+tline)     
+   else:
+    tree.insert(tpid,"end",values=(tinfos[2],tinfos[3],tinfos[4],tinfos[5],tinfos[6],tinfos[7]))
 
 def searchdevices():
   global UseGUI

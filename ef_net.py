@@ -191,7 +191,7 @@ def check80(purl):
  except:
   rescode = -1
   if check_espurna(purl):
-   tipus = "ESPurna"     
+   tipus = "ESPurna"
  if rescode == 0: 
   try:
    rescode = content.getcode()
@@ -209,6 +209,14 @@ def check80(purl):
     tipus = "ESPEasy"
    elif str(retdata).find("/cgi-bin/luci")>-1:
     tipus = "OpenWRT"
+   elif str(tipus2).find("Mongoose")>-1:
+    try:
+     content = urllib.request.urlopen("http://"+purl+"/shelly", None, 2)
+     retdata = str(content.read())
+    except:
+     pass
+    if retdata.find("type")>-1:
+     tipus = "Shelly"
    elif tipus2 != "" and tipus2 != None:
     tipus = tipus2
   else:
@@ -437,6 +445,99 @@ def get_espeasy(purl):
         
  return resarr
 
+def get_shelly(purl):
+#0:IP, 1:MAC, 
+#3:FriendlyName, 2:FW_Ver, 4:Uptime, 5:ProgramSize/FlashSize, 6: Heap, 7:RSSI, (%), 8:Vcc
+ resarr = ['','','','','','','','','']
+ authneeded = True
+ rescode = 0
+ try:
+  content = urllib.request.urlopen("http://"+purl+"/shelly", None, 2)
+ except:
+  rescode = -1
+ if rescode == 0: 
+  try:
+   rescode = content.getcode()
+  except:
+   rescode = -1
+  if (rescode == 200):
+   try:
+    retdata = content.read()
+   except:
+    retdata = ""
+   msg2 = retdata.decode('utf-8')
+   if ('{' in msg2):
+    list = []
+    try:
+     list = json.loads(msg2)
+    except Exception as e:
+     print("JSON decode error:",e,"'",msg2,"'")
+     list = []
+    if (list):
+     resarr[2] = str(list['type']) + " " + str(list['fw'])
+     authneeded = list['auth']
+ if authneeded==False:
+  rescode = 0
+  try:
+   content = urllib.request.urlopen("http://"+purl+"/status", None, 2)
+  except:
+   rescode = -1
+  if rescode == 0: 
+   try:
+    rescode = content.getcode()
+   except:
+    rescode = -1
+   if (rescode == 200):
+    try:   
+     retdata = content.read()
+    except:
+     retdata = ""    
+    msg2 = retdata.decode('utf-8')
+    if ('{' in msg2):
+     list = []
+     try:
+      list = json.loads(msg2)
+     except Exception as e:
+      print("JSON decode error:",e,"'",msg2,"'")
+      list = []
+     if (list):
+      if 'cloud' in list:
+       if list['cloud']['enabled']:
+        resarr[7]+='CLOUD '
+      if 'mqtt' in list:
+       if list['mqtt']['connected']:
+        resarr[7]+='MQTT '
+      resarr[6]= str(round(list['ram_free']/1024,2))+" kB"
+      resarr[4]= str(round(list['uptime']/3600,2))+" h"
+      resarr[5]= str(int(round(list['fs_free']/1024,0))) + "kB/" + str(int(round(list['fs_size']/1024,0)))+"kB"
+  rescode = 0
+  try:
+   content = urllib.request.urlopen("http://"+purl+"/settings", None, 2)
+  except:
+   rescode = -1
+  if rescode == 0: 
+   try:
+    rescode = content.getcode()
+   except:
+    rescode = -1
+   if (rescode == 200):
+    try:   
+     retdata = content.read()
+    except:
+     retdata = ""    
+    msg2 = retdata.decode('utf-8')
+    if ('{' in msg2):
+     list = []
+     try:
+      list = json.loads(msg2)
+     except Exception as e:
+      print("JSON decode error:",e,"'",msg2,"'")
+      list = []
+     if (list):
+      if 'device' in list:
+       resarr[3] = str(list['device']['hostname'])
+ return resarr
+
 def check_espurna(purl): # 23 & 80 open
  wildguess = 0
  if check_port(purl, 80):
@@ -463,4 +564,6 @@ def checkMACManuf(macaddr):
   retstr = "Espressif"
  elif normmac == "B8-27-EB":
   retstr = "Raspberry"
+ elif normmac == "00-E0-4C":
+  retstr = "Realtek"
  return retstr 
