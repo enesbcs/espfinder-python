@@ -509,7 +509,8 @@ def get_shelly(purl):
         resarr[7]+='MQTT '
       resarr[6]= str(round(list['ram_free']/1024,2))+" kB"
       resarr[4]= str(round(list['uptime']/3600,2))+" h"
-      resarr[5]= str(int(round(list['fs_free']/1024,0))) + "kB/" + str(int(round(list['fs_size']/1024,0)))+"kB"
+      if 'fs_free' in list:
+       resarr[5]= "SPIFFS "+str(int(round(list['fs_free']/1024,0))) + "kB free/" + str(int(round(list['fs_size']/1024,0)))+"kB"
   rescode = 0
   try:
    content = urllib.request.urlopen("http://"+purl+"/settings", None, 2)
@@ -535,7 +536,13 @@ def get_shelly(purl):
       list = []
      if (list):
       if 'device' in list:
-       resarr[3] = str(list['device']['hostname'])
+       if 'hostname' in list['device']:
+        resarr[3] = str(list['device']['hostname'])
+      if 'cloud' in list:
+       if list['cloud']['enabled'] and 'CLOUD' not in resarr[7]:
+        resarr[7]+='CLOUD '
+      if 'name' in list and resarr[3]=="":
+       resarr[3] = str(list['name'])
  return resarr
 
 def check_espurna(purl): # 23 & 80 open
