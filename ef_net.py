@@ -205,13 +205,15 @@ def check80(purl):
     retdata = ""
    if str(retdata).find("Sonoff-Tasmota")>-1:
     tipus = "Tasmota"
+   elif str(retdata).find("NS Tech")>-1: 
+    tipus = "RPIEasy"
    elif str(retdata).find("www.letscontrolit.com")>-1: 
     tipus = "ESPEasy"
    elif str(retdata).find("/cgi-bin/luci")>-1:
     tipus = "OpenWRT"
    elif str(tipus2).find("Mongoose")>-1:
     try:
-     content = urllib.request.urlopen("http://"+purl+"/shelly", None, 2)
+     content = urllib.request.urlopen("http://"+purl+"/shelly", None, 1)
      retdata = str(content.read())
     except:
      pass
@@ -374,11 +376,17 @@ def get_espeasy(purl):
      list = []
     if (list):
      if list['System']:
-      try:   
+      try:
+       sysname = "ESPEasy "
+       if "RPIEasy" in list['System']['Build']:
+        sysname = "RPIEasy "
+      except:
+        sysname = "ESPEasy "
+      try:
        if 'System libraries' in list['System']:
-        resarr[2] = "ESPEasy "+str(list['System']['Build'])+" "+str(list['System']['System libraries'])
+        resarr[2] = sysname+str(list['System']['Build'])+" "+str(list['System']['System libraries'])
        else:
-        resarr[2] = "ESPEasy "+str(list['System']['Build'])+" "+str(list['System']['Git Build'])
+        resarr[2] = sysname+str(list['System']['Build'])+" "+str(list['System']['Git Build'])
        resarr[3] = str(list['System']['Unit'])
        upmin = int(list['System']['Uptime'])
        resarr[4] = str(round(upmin/60,2))+"h"

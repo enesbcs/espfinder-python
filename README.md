@@ -1,5 +1,5 @@
 # espfinder-python
-Find ESP8266 modules in the /24 network neighborhood, and collect infos about them. (ESPEasy,Tasmota,ESPurna,Tuya,Shelly)
+Find ESP8266 modules in the /24 network neighborhood, and collect infos about them. (ESPEasy,Tasmota,ESPurna,Tuya,Shelly,RPIEasy)
 
 Requirements:
 - Linux
@@ -21,6 +21,9 @@ Run plain console:
   python3 espfinder.py -t
 
 Update:
+
+0.5
+- (enesbcs) added RPIEasy detection support
 
 0.4
 - (enesbcs) added Tuya and Shelly detection support

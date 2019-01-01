@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3 
 #
 # Pings for active host on *this* sub network.
 # The current sub network address and
@@ -18,7 +18,7 @@ from tkinter import ttk
 from tkinter import messagebox
 
 PROG_NAME= "ESP Finder"
-PROG_VER="0.3"
+PROG_VER="0.5"
 
 # ---------- MULTIPROCESSING PART
 
@@ -152,14 +152,29 @@ def analyzeip(par1):
    print(par1.ljust(14) + tline)
   else:
    tpid= tree.insert("","end",text=par1.ljust(14),values=(tline))
-  if attribs[3] == "Tasmota":
+  if attribs[3] not in ["Tasmota","RPIEasy","ESPEasy","Shelly","Tuya"]: # rpieasy can run on different ports, check that
+   tport = 8080
+   if (check_port(par1,tport)):
+    attribs[3] = check80(str(par1)+":"+str(tport))
+   if attribs[3]!="RPIEasy":
+    tport = 8008
+    if (check_port(par1,tport)):
+     attribs[3] = check80(str(par1)+":"+str(tport))
+   if attribs[3]=="RPIEasy":
+    tinfos = get_espeasy(str(par1)+":"+str(tport))
+    tline = tinfos[2] + ", " + tinfos[3] + ", "+ tinfos[4] +", "+ tinfos[5] +", "+ tinfos[6]+", "+ tinfos[7]
+    if UseGUI==False:       
+     print(" -"+tline)     
+    else:
+     tree.insert(tpid,"end",values=(tinfos[2],tinfos[3],tinfos[4],tinfos[5],tinfos[6],tinfos[7]))
+  elif attribs[3] == "Tasmota":
    tinfos = get_tasmota(par1)
    tline = tinfos[2] + ", " + tinfos[3] + ", "+ tinfos[4] +", "+ tinfos[5] +", "+ tinfos[6]+", "+ tinfos[7]+", "+ tinfos[8]
    if UseGUI==False:
     print(" -"+tline)
    else:
     tree.insert(tpid,"end",values=(tinfos[2],tinfos[3],tinfos[4],tinfos[5],tinfos[6],tinfos[7],tinfos[8]))
-  elif attribs[3] == "ESPEasy":
+  elif attribs[3] == "ESPEasy" or attribs[3] == "RPIEasy":
    tinfos = get_espeasy(par1)
    tline = tinfos[2] + ", " + tinfos[3] + ", "+ tinfos[4] +", "+ tinfos[5] +", "+ tinfos[6]+", "+ tinfos[7]
    if UseGUI==False:       
