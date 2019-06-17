@@ -253,9 +253,44 @@ def get_tasmota(purl):
     except Exception as e:
      print("JSON decode error:",e,"'",msg2,"'")
      list = []
-    if (list):
-     if list['Status']:
-      resarr[3] = str(list['Status']['FriendlyName'])
+    rescode = -2
+    try:
+     if (list):
+      if list['Status']:
+       resarr[3] = str(list['Status']['FriendlyName'])
+       rescode = 0
+    except:
+     rescode = -2
+ if rescode==-2:
+  rescode = 0
+  try:
+   content = urllib.request.urlopen("http://"+purl+"/cm?cmnd=status%2013", None, 2)
+  except:
+   rescode = -1
+  if rescode == 0: 
+   try:
+    rescode = content.getcode()
+   except:
+    rescode = -1
+   if (rescode == 200):
+    try:
+     retdata = content.read()
+    except:
+     retdata = ""
+    msg2 = retdata.decode('utf-8')
+    if ('{' in msg2):
+     list = []
+     try:
+      list = json.loads(msg2)
+     except Exception as e:
+      print("JSON decode error:",e,"'",msg2,"'")
+      list = []
+     try:
+      if (list):
+       if list['Status']:
+        resarr[3] = str(list['Status']['FriendlyName'])
+     except:
+      pass
  rescode = 0
  try:
   content = urllib.request.urlopen("http://"+purl+"/cm?cmnd=status%202", None, 2)
