@@ -9,7 +9,7 @@ Install prerequisite libraries (Debian/Ubuntu):
   sudo apt-get install python3-tk
 
 (*)Debian Stretch specific prerequisite: (ifconfig required)
-  suto apt-get install net-tools
+  sudo apt-get install net-tools
 
 Install prerequisite libraries (Arch):
   sudo pacman -S tk  
