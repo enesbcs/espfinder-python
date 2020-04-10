@@ -203,7 +203,7 @@ def check80(purl):
     retdata = content.read()
    except:
     retdata = ""
-   if str(retdata).find("Sonoff-Tasmota")>-1:
+   if str(retdata).find("Tasmota")>-1:
     tipus = "Tasmota"
    elif str(retdata).find("NS Tech")>-1: 
     tipus = "RPIEasy"
@@ -420,9 +420,15 @@ def get_espeasy(purl):
       try:
        if 'System libraries' in list['System']:
         resarr[2] = sysname+str(list['System']['Build'])+" "+str(list['System']['System libraries'])
+       elif 'System Libraries' in list['System']:
+        resarr[2] = sysname+str(list['System']['Build'])+" "+str(list['System']['System Libraries'])
        else:
         resarr[2] = sysname+str(list['System']['Build'])+" "+str(list['System']['Git Build'])
-       resarr[3] = str(list['System']['Unit'])
+
+       if 'Unit' in list['System']:
+        resarr[3] = str(list['System']['Unit'])
+       elif 'Unit Number' in list['System']:
+        resarr[3] = str(list['System']['Unit Number'])
        upmin = int(list['System']['Uptime'])
        resarr[4] = str(round(upmin/60,2))+"h"
        heapfree = list['System']['Free RAM']
@@ -433,9 +439,8 @@ def get_espeasy(purl):
         if wifistren > 100:
          wifistren = 100
         resarr[7] = str(wifistren) + "%"
-
       except:
-       pass   
+       pass
  rescode = 0
  try:
   content = urllib.request.urlopen("http://"+purl+"/sysinfo", None, 2)
@@ -478,6 +483,8 @@ def get_espeasy(purl):
        resarr[5] = item[1]
             
     if tarr.find("Flash IDE mode")>0:
+       resarr[5] += " ("+item[1]+")"
+    elif tarr.find("Flash IDE Mode")>0:
        resarr[5] += " ("+item[1]+")"
 
     if tarr.find("Core Version:")>0:
