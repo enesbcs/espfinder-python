@@ -1,28 +1,45 @@
 Be a patron at [Patreon](https://www.patreon.com/enesbcs)
 
 # espfinder-python
-Find ESP8266 modules in the /24 network neighborhood, and collect infos about them. (ESPEasy,Tasmota,ESPurna,Tuya,Shelly,RPIEasy)
+Find ESP8266 modules in the /24 network neighborhood, and collect infos about them. (ESPEasy, Tasmota, ESPurna, Tuya,Shelly, RPIEasy)
+
+## Installation
 
 Requirements:
 - Linux
 - Python3
 
 Install prerequisite libraries (Debian/Ubuntu):
-  sudo apt-get install python3-tk
+```sh
+sudo apt-get install python3-tk
+```
 
 (*)Debian Stretch specific prerequisite: (ifconfig required)
-  sudo apt-get install net-tools
+```sh
+sudo apt-get install net-tools
+```
 
 Install prerequisite libraries (Arch):
-  sudo pacman -S tk  
+```sh
+sudo pacman -S tk
+```
+
+
+
+## Usage
 
 Run GUI:
-  python3 espfinder.py
+```sh
+python3 espfinder.py
+```
 
 Run plain console:
-  python3 espfinder.py -t
+```sh
+python3 espfinder.py -t
+```
 
-Update:
+
+## Release notes
 
 0.5
 - (enesbcs) added RPIEasy detection support
